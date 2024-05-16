@@ -1,5 +1,10 @@
+import typer
+from rich.console import Console
+from rich.syntax import Syntax
 import tree_sitter_haskell as tshaskell
 from tree_sitter import Language, Parser
+
+console = Console()
 
 # Load the compiled Haskell language library
 HASKELL_LANGUAGE = Language(tshaskell.language())
@@ -15,7 +20,7 @@ def detect_unsafe_perform_io(node, source_code):
             'start': node.start_point,
             'end': node.end_point
         })
-        print(f"Detected unsafePerformIO at {node.start_point}-{node.end_point}")
+        # print(f"Detected unsafePerformIO at {node.start_point}-{node.end_point}")
     
     for child in node.children:
         vulnerabilities.extend(detect_unsafe_perform_io(child, source_code))
@@ -30,7 +35,7 @@ def detect_unsafe_io(node, source_code):
             'start': node.start_point,
             'end': node.end_point
         })
-        print(f"Detected unsafe IO at {node.start_point}-{node.end_point}")
+        # print(f"Detected unsafe IO at {node.start_point}-{node.end_point}")
     
     for child in node.children:
         vulnerabilities.extend(detect_unsafe_io(child, source_code))
@@ -47,7 +52,7 @@ def detect_pattern_matching_failures(node, source_code):
                 'start': node.start_point,
                 'end': node.end_point
             })
-            print(f"Detected partial pattern match at {node.start_point}-{node.end_point}")
+            # print(f"Detected partial pattern match at {node.start_point}-{node.end_point}")
     
     for child in node.children:
         vulnerabilities.extend(detect_pattern_matching_failures(child, source_code))
@@ -62,7 +67,7 @@ def detect_resource_leaks(node, source_code):
             'start': node.start_point,
             'end': node.end_point
         })
-        print(f"Detected resource leak at {node.start_point}-{node.end_point}")
+        # print(f"Detected resource leak at {node.start_point}-{node.end_point}")
     
     for child in node.children:
         vulnerabilities.extend(detect_resource_leaks(child, source_code))
@@ -82,11 +87,15 @@ def analyze_haskell_code(source_code):
     
     return vulnerabilities
 
-if __name__ == "__main__":
-    with open('example.hs', 'r') as f:
+def main(file_path: str):
+    with open(file_path, 'r') as f:
         source_code = f.read()
     
     vulnerabilities = analyze_haskell_code(source_code)
 
     for vulnerability in vulnerabilities:
-        print(f"Vulnerability detected: {vulnerability['type']} at {vulnerability['start']} to {vulnerability['end']}")
+        console.print(f":warning:  [bold red]Detected:[/bold red] {vulnerability['type']} at {vulnerability['start']} to {vulnerability['end']}")
+
+
+if __name__ == "__main__":
+    typer.run(main)
