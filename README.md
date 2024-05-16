@@ -1,4 +1,4 @@
-# hslint
+# seclint-hs
 
 A Haskell Static Analysis Tool implemented in Python
 
